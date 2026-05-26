@@ -1,0 +1,29 @@
+# Compilação Java
+out/
+*.class
+sources.txt
+
+# Resultados gerados
+results/*
+!results/.gitkeep
+
+# Biblioteca local JOCL
+lib/*
+!lib/.gitkeep
+
+# Amostras / livros
+samples/*
+!samples/.gitkeep
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Logs
+*.log
