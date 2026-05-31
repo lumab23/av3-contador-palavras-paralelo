@@ -8,6 +8,8 @@ Projeto Java que compara três formas de contar ocorrências de uma palavra em a
 
 O programa lê arquivos `.txt` da pasta `samples/`, conta a palavra informada, mede o tempo de cada abordagem e grava os resultados em `results/results.csv`. Também gera dois gráficos PNG com Java puro.
 
+Pode ser usado pela **linha de comando** ou por uma **interface gráfica Swing** (`--gui`), que exibe os logs e os gráficos gerados após cada execução.
+
 ## Estrutura
 
 ```
@@ -21,7 +23,9 @@ O programa lê arquivos `.txt` da pasta `samples/`, conta a palavra informada, m
 │   ├── ParallelGPU.java   # Contagem paralela na GPU (OpenCL)
 │   ├── CountResult.java   # Representa uma linha de resultado
 │   ├── CsvWriter.java     # Gera o CSV
-│   └── SimpleCharts.java  # Gera gráficos PNG
+│   ├── SimpleCharts.java  # Gera gráficos PNG
+│   └── ui/
+│       └── MainWindow.java # Interface gráfica Swing
 ├── samples/               # Arquivos .txt de entrada
 ├── lib/                   # jocl-2.0.4.jar (manual, ver abaixo)
 ├── results/               # CSV e PNG gerados na execução
@@ -56,31 +60,17 @@ Download direto: https://repo1.maven.org/maven2/org/jocl/jocl/2.0.4/jocl-2.0.4.j
 
 ## Como usar
 
-Clone o repositório, entre na pasta raiz, adicione o JAR em `lib/` e use os comandos abaixo.
+Clone o repositório, entre na pasta raiz, adicione o JAR em `lib/` e compile o projeto. Depois, escolha a interface gráfica ou a linha de comando.
 
-### macOS / Linux
+### Compilar
 
-**Compilar:**
+**macOS / Linux:**
 
 ```bash
 rm -rf out && mkdir -p out && find src -name "*.java" > sources.txt && javac -encoding UTF-8 -cp "lib/jocl-2.0.4.jar" -d out @sources.txt
 ```
 
-**Executar sem GPU:**
-
-```bash
-java -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --word the --runs 3 --threads 1,2,4,8 --skip-gpu
-```
-
-**Executar com GPU:**
-
-```bash
-java --enable-native-access=ALL-UNNAMED -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --word the --runs 3 --threads 1,2,4,8 --use-gpu
-```
-
-### Windows
-
-**Compilar:**
+**Windows:**
 
 ```cmd
 rmdir /s /q out 2>nul & mkdir out
@@ -88,13 +78,49 @@ dir /s /b src\*.java > sources.txt
 javac -encoding UTF-8 -cp "lib\jocl-2.0.4.jar" -d out @sources.txt
 ```
 
-**Executar sem GPU:**
+### Interface gráfica
+
+**macOS / Linux:**
+
+```bash
+java -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --gui
+```
+
+**Windows:**
+
+```cmd
+java -cp "out;lib\jocl-2.0.4.jar" br.com.av3.App --gui
+```
+
+Se for marcar **Usar GPU** na interface e estiver no macOS com Java recente:
+
+```bash
+java --enable-native-access=ALL-UNNAMED -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --gui
+```
+
+A janela permite configurar palavra, execuções, threads, pastas de amostras e resultados, e se a GPU deve ser usada. Ao clicar em **Executar testes**, o benchmark roda em background e a saída aparece na aba **Saída**. Após concluir com sucesso, os gráficos `tempo-medio.png` e `threads-cpu.png` são carregados automaticamente nas abas **Tempo médio** e **Threads CPU**.
+
+### Linha de comando
+
+**macOS / Linux — sem GPU:**
+
+```bash
+java -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --word the --runs 3 --threads 1,2,4,8 --skip-gpu
+```
+
+**macOS / Linux — com GPU:**
+
+```bash
+java --enable-native-access=ALL-UNNAMED -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --word the --runs 3 --threads 1,2,4,8 --use-gpu
+```
+
+**Windows — sem GPU:**
 
 ```cmd
 java -cp "out;lib\jocl-2.0.4.jar" br.com.av3.App --word the --runs 3 --threads 1,2,4,8 --skip-gpu
 ```
 
-**Executar com GPU:**
+**Windows — com GPU:**
 
 ```cmd
 java --enable-native-access=ALL-UNNAMED -cp "out;lib\jocl-2.0.4.jar" br.com.av3.App --word the --runs 3 --threads 1,2,4,8 --use-gpu
@@ -104,6 +130,7 @@ java --enable-native-access=ALL-UNNAMED -cp "out;lib\jocl-2.0.4.jar" br.com.av3.
 
 | Argumento | Descrição |
 |-----------|-----------|
+| `--gui` | Abre a interface gráfica Swing em vez de rodar pelo terminal |
 | `--word <texto>` | Palavra a buscar (padrão: `the`) |
 | `--runs <n>` | Número de execuções por teste (padrão: `3`) |
 | `--threads <lista>` | Threads do `ParallelCPU`, separadas por vírgula (padrão: `1,2,4,8`) |
@@ -123,6 +150,8 @@ Após a execução, a pasta `results/` contém:
 | `threads-cpu.png` | Gráfico de barras com tempo médio do `ParallelCPU` por número de threads |
 
 Colunas do CSV: `arquivo`, `palavra`, `algoritmo`, `processadores`, `execucao`, `ocorrencias`, `tempo_ms`, `total_palavras`.
+
+Na interface gráfica, os PNGs são exibidos nas abas correspondentes. Se algum arquivo não existir após a execução, a aba mostra uma mensagem informando o caminho esperado.
 
 ## Exemplo de execução
 

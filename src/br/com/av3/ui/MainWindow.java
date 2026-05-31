@@ -27,10 +27,19 @@ public class MainWindow extends JFrame {
     private final JButton clearButton = new JButton("Limpar saída");
 
     private final JTextArea logArea = new JTextArea(25, 90);
+    private final JLabel averageTimeChartLabel = new JLabel();
+    private final JLabel cpuThreadsChartLabel = new JLabel();
 
     public MainWindow() {
         super("Contador de palavras (AV3 - Paralelo/GPU)");
         initUi();
+    }
+
+    public static void open() {
+        SwingUtilities.invokeLater(() -> {
+            MainWindow window = new MainWindow();
+            window.setVisible(true);
+        });
     }
 
     private void initUi() {
@@ -101,22 +110,33 @@ public class MainWindow extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         inputsPanel.add(buttonsPanel, gbc);
 
-        JScrollPane scrollPane = new JScrollPane(logArea);
         logArea.setEditable(false);
         logArea.setLineWrap(true);
         logArea.setWrapStyleWord(true);
 
-        add(inputsPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
+        averageTimeChartLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        averageTimeChartLabel.setVerticalAlignment(SwingConstants.TOP);
+        cpuThreadsChartLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        cpuThreadsChartLabel.setVerticalAlignment(SwingConstants.TOP);
 
-        // --- Ações ---
+        JScrollPane logScrollPane = new JScrollPane(logArea);
+        JScrollPane averageTimeScrollPane = new JScrollPane(averageTimeChartLabel);
+        JScrollPane cpuThreadsScrollPane = new JScrollPane(cpuThreadsChartLabel);
+
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Saída", logScrollPane);
+        tabbedPane.addTab("Tempo médio", averageTimeScrollPane);
+        tabbedPane.addTab("Threads CPU", cpuThreadsScrollPane);
+
+        add(inputsPanel, BorderLayout.NORTH);
+        add(tabbedPane, BorderLayout.CENTER);
+
         clearButton.addActionListener(e -> logArea.setText(""));
 
         executeButton.addActionListener(e -> {
             executeButton.setEnabled(false);
             appendLog("\n=== Iniciando execução ===\n");
 
-            // Captura valores no EDT antes de rodar em background.
             String word = wordField.getText().trim();
             String runsText = runsField.getText().trim();
             String threadsText = threadsField.getText().trim();
@@ -176,10 +196,9 @@ public class MainWindow extends JFrame {
                         boolean csvExists = Files.exists(csvPath);
                         return new RunOutcome(true, null, csvPath, csvExists);
                     } catch (Exception ex) {
-                        ex.printStackTrace(); // vai para a JTextArea via System.err
+                        ex.printStackTrace();
                         return new RunOutcome(false, ex, csvPath, Files.exists(csvPath));
                     } finally {
-                        // Restaura os streams originais.
                         System.setOut(originalOut);
                         System.setErr(originalErr);
                     }
@@ -189,7 +208,6 @@ public class MainWindow extends JFrame {
                 protected void done() {
                     executeButton.setEnabled(true);
 
-                    // Garante que a UI continue responsiva e que a mensagem final apareça ao final.
                     RunOutcome outcome;
                     try {
                         outcome = get();
@@ -214,6 +232,7 @@ public class MainWindow extends JFrame {
                         } else {
                             appendLog("Aviso: CSV não encontrado após execução (pode ter falhado antes de gerar o CSV).\n");
                         }
+                        loadCharts(resultsDir);
                     } else {
                         appendLog("Status: erro.\n");
                         if (outcome.error != null && outcome.error.getMessage() != null) {
@@ -227,6 +246,28 @@ public class MainWindow extends JFrame {
 
         setSize(1100, 700);
         setLocationRelativeTo(null);
+    }
+
+    private void loadCharts(String resultsDir) {
+        Path averageChart = Paths.get(resultsDir).resolve("tempo-medio.png");
+        Path threadsChart = Paths.get(resultsDir).resolve("threads-cpu.png");
+        setChartImage(averageTimeChartLabel, averageChart);
+        setChartImage(cpuThreadsChartLabel, threadsChart);
+    }
+
+    private void setChartImage(JLabel label, Path imagePath) {
+        if (Files.exists(imagePath)) {
+            ImageIcon icon = new ImageIcon(imagePath.toString());
+            label.setIcon(icon);
+            label.setText("");
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            label.setVerticalAlignment(SwingConstants.TOP);
+        } else {
+            label.setIcon(null);
+            label.setText("Gráfico não encontrado: " + imagePath);
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            label.setVerticalAlignment(SwingConstants.TOP);
+        }
     }
 
     private void appendLog(String text) {
@@ -274,4 +315,3 @@ public class MainWindow extends JFrame {
         }
     }
 }
-
