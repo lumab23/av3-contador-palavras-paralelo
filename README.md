@@ -9,7 +9,7 @@
 
 Este trabalho implementa e compara três abordagens de contagem de ocorrências de uma palavra em arquivos de texto: execução **serial na CPU** (`SerialCPU`), execução **paralela na CPU** com pool de threads (`ParallelCPU`) e execução **paralela na GPU** com OpenCL via biblioteca JOCL (`ParallelGPU`). Os testes utilizam três obras literárias de tamanhos e idiomas distintos como conjuntos de dados.
 
-Foi desenvolvido um framework de benchmark em Java que executa cada combinação de algoritmo, arquivo e configuração de paralelismo **três vezes**, registra ocorrências e tempos em **CSV** e gera **gráficos PNG** para análise visual. Os resultados indicam que, para o volume e o tipo de operação avaliados (comparação exata de strings tokenizadas), a versão serial permanece competitiva ou superior à CPU paralela, enquanto a GPU apresenta overhead elevado de inicialização e transferência de dados, ficando cerca de **10× a 30× mais lenta** que o serial nos cenários medidos. O paralelismo na CPU mostrou ganho marginal em textos maiores quando configurado com **4 threads**, sem escalonamento linear até 8 threads.
+Foi desenvolvido um framework de benchmark em Java que executa cada combinação de algoritmo, arquivo e configuração de paralelismo **três vezes**, registra ocorrências e tempos em **CSV** e gera **gráficos PNG** para análise visual. Os resultados indicam que, para o volume e o tipo de operação avaliados (comparação exata de strings tokenizadas), a versão serial permanece competitiva ou superior à CPU paralela. A GPU apresentou tempos superiores aos métodos em CPU nos cenários medidos, principalmente devido ao overhead de inicialização do OpenCL, transferência de dados e leitura dos resultados. O paralelismo na CPU mostrou ganho marginal em textos maiores quando configurado com **4 threads**, sem escalonamento linear até 8 threads.
 
 ---
 
@@ -137,7 +137,7 @@ Média do `ParallelCPU` considerando os três arquivos:
 | 4 | 1,425 |
 | 8 | 1,546 |
 
-Há melhora ao passar de 1 para 4 threads, mas **8 threads não mantêm o ganho** — possível contenção de memória e custo de agendamento sem trabalho útil proporcional. O gráfico `threads-cpu.png` evidencia esse patrão: existe um ponto intermediário (4 threads) mais favorável que extremos muito baixo ou muito alto de paralelismo para esta carga.
+Há melhora ao passar de 1 para 4 threads, mas **8 threads não mantêm o ganho** — possível contenção de memória e custo de agendamento sem trabalho útil proporcional. O gráfico `threads-cpu.png` evidencia esse padrão: existe um ponto intermediário (4 threads) mais favorável que extremos muito baixo ou muito alto de paralelismo para esta carga.
 
 ### Demonstração dos gráficos
 
@@ -197,3 +197,63 @@ Em conjunto, os resultados oferecem uma base para desenvolvedores e pesquisadore
 Códigos das implementações (`SerialCPU`, `ParallelCPU`, `ParallelGPU`, `Benchmark`, `WordFile`, `CsvWriter`, `SimpleCharts`, `MainWindow`, entre outros):
 
 **https://github.com/lumab23/av3-contador-palavras-paralelo**
+
+### Observação sobre execução e dependências
+
+Para executar o projeto, é necessário ter o **Java JDK** instalado.
+
+A biblioteca **JOCL 2.0.4** deve ser adicionada manualmente ao projeto. O arquivo `jocl-2.0.4.jar`, fornecido no material da atividade, deve ser colocado na pasta `lib/`, ficando no seguinte caminho:
+
+```text
+lib/jocl-2.0.4.jar
+```
+
+Os arquivos `.txt` usados como amostras devem ser colocados na pasta:
+
+```text
+samples/
+```
+
+A estrutura esperada para execução é:
+
+```text
+av3-contador-palavras-paralelo/
+├── lib/
+│   └── jocl-2.0.4.jar
+├── samples/
+│   ├── DonQuixote-388208.txt
+│   ├── Dracula-165307.txt
+│   └── MobyDick-217452.txt
+├── src/
+└── results/
+```
+
+Para compilar no Mac/Linux:
+
+```bash
+rm -rf out && mkdir -p out && find src -name "*.java" > sources.txt && javac -encoding UTF-8 -cp "lib/jocl-2.0.4.jar" -d out @sources.txt
+```
+
+Para executar pelo terminal no Mac/Linux:
+
+```bash
+java --enable-native-access=ALL-UNNAMED -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --word whale --runs 3 --threads 1,2,4,8 --use-gpu
+```
+
+Para abrir a interface gráfica Swing no Mac/Linux:
+
+```bash
+java --enable-native-access=ALL-UNNAMED -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --gui
+```
+
+No Windows, a principal diferença é o separador do classpath, que deve ser `;` em vez de `:`:
+
+```bash
+java --enable-native-access=ALL-UNNAMED -cp "out;lib\jocl-2.0.4.jar" br.com.av3.App --gui
+```
+
+Caso o ambiente não possua suporte a OpenCL/GPU, a execução pode ser feita ignorando a GPU:
+
+```bash
+java -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --word whale --runs 3 --threads 1,2,4,8 --skip-gpu
+```
