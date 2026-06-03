@@ -1,8 +1,7 @@
 # Análise comparativa de algoritmos com uso de paralelismo
 
-**Disciplina:** Computação concorrente e paralela (AV3)  
-**Título do trabalho:** Análise comparativa de algoritmos com uso de paralelismo  
-**Integrantes da dupla:** Amanda Fonseca e Luma Brandão
+**Disciplina:** Computação concorrente e paralela  
+**Integrantes:** Amanda Fonseca e Luma Brandão
 
 ---
 
