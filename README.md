@@ -188,7 +188,6 @@ Em conjunto, os resultados oferecem uma base para desenvolvedores e pesquisadore
 - Khronos Group. *OpenCL Specification*. https://www.khronos.org/opencl/
 - JOCL Project. *Java bindings for OpenCL (JOCL 2.0.4)*. https://github.com/gpu/JOCL
 - Maven Central. *jocl 2.0.4*. https://repo1.maven.org/maven2/org/jocl/jocl/2.0.4/
-- Project Gutenberg. Obras literárias em domínio público (amostras de texto).
 
 ---
 
