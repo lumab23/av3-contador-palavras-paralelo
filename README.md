@@ -57,6 +57,12 @@ Desenvolvimento da classe `Benchmark`, responsável por:
 
 A saída de cada teste segue o formato exigido pelo trabalho, por exemplo: `SerialCPU [1]: 1244 ocorrencias em 1.220 ms`.
 
+### Interface gráfica Swing
+
+Como recurso adicional, foi desenvolvida uma interface gráfica em Swing Java por meio da classe `MainWindow`. A interface permite informar a palavra buscada, o número de execuções, a quantidade de threads, os diretórios de entrada e saída e a opção de usar ou não a GPU. Durante a execução, os logs do benchmark são exibidos na aba **Saída**; ao final, os gráficos gerados são apresentados nas abas **Tempo médio** e **Threads CPU**. O programa é iniciado com o argumento `--gui`.
+
+![Interface gráfica Swing do projeto](docs/graficos/interface.png)
+
 ### Execução em ambientes variados
 
 Os testes variaram **tamanho e natureza** dos conjuntos de dados e **configurações de processamento paralelo**:
