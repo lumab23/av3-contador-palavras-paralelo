@@ -231,9 +231,11 @@ av3-contador-palavras-paralelo/
 Para compilar no Mac/Linux:
 
 ```bash
-rm -rf out && mkdir -p out && find src -name "*.java" > sources.txt && javac -encoding UTF-8 -cp "lib/jocl-2.0.4.jar" -d out @sources.txt
-```
-
+rm -rf out && mkdir -p out && \
+find src -name "*.java" > sources.txt && \
+javac -encoding UTF-8 \
+  -cp "lib/jocl-2.0.4.jar" \
+  -d out @sources.txt
 Para executar pelo terminal no Mac/Linux:
 
 ```bash
@@ -243,17 +245,29 @@ java --enable-native-access=ALL-UNNAMED -cp "out:lib/jocl-2.0.4.jar" br.com.av3.
 Para abrir a interface gráfica Swing no Mac/Linux:
 
 ```bash
-java --enable-native-access=ALL-UNNAMED -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --gui
+java --enable-native-access=ALL-UNNAMED \
+  -cp "out:lib/jocl-2.0.4.jar" \
+  br.com.av3.App \
+  --gui
 ```
 
 No Windows, a principal diferença é o separador do classpath, que deve ser `;` em vez de `:`:
 
 ```bash
-java --enable-native-access=ALL-UNNAMED -cp "out;lib\jocl-2.0.4.jar" br.com.av3.App --gui
+java --enable-native-access=ALL-UNNAMED ^
+  -cp "out;lib\jocl-2.0.4.jar" ^
+  br.com.av3.App ^
+  --gui
 ```
 
 Caso o ambiente não possua suporte a OpenCL/GPU, a execução pode ser feita ignorando a GPU:
 
 ```bash
-java -cp "out:lib/jocl-2.0.4.jar" br.com.av3.App --word whale --runs 3 --threads 1,2,4,8 --skip-gpu
+java \
+  -cp "out:lib/jocl-2.0.4.jar" \
+  br.com.av3.App \
+  --word whale \
+  --runs 3 \
+  --threads 1,2,4,8 \
+  --skip-gpu
 ```
