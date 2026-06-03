@@ -228,6 +228,17 @@ av3-contador-palavras-paralelo/
 └── results/
 ```
 
+Para compilar no Mac/Linux:
+
+```bash
+rm -rf out
+mkdir -p out
+find src -name "*.java" > sources.txt
+javac -encoding UTF-8 \
+  -cp "lib/jocl-2.0.4.jar" \
+  -d out @sources.txt
+```
+
 Para executar pelo terminal no Mac/Linux:
 
 ```bash
@@ -238,17 +249,6 @@ java --enable-native-access=ALL-UNNAMED \
   --runs 3 \
   --threads 1,2,4,8 \
   --use-gpu
-```
-
-Para compilar no Mac/Linux:
-
-```bash
-rm -rf out
-mkdir -p out
-find src -name "*.java" > sources.txt
-javac -encoding UTF-8 \
-  -cp "lib/jocl-2.0.4.jar" \
-  -d out @sources.txt
 ```
 
 Para abrir a interface gráfica Swing no Mac/Linux:
